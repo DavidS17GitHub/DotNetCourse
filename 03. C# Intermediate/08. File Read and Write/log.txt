@@ -1,0 +1,19 @@
+INSERT INTO [TutorialAppSchema].[Computer] (
+            Motherboard,
+            CPUCores,
+            HasWifi,
+            HasLTE,
+            ReleaseDate,
+            Price,
+            VideoCard
+        ) VALUES ('Z690','4','True','False','3/12/2024 10:42:28 AM','943.87','RTX 2060')
+INSERT INTO [TutorialAppSchema].[Computer] (
+            Motherboard,
+            CPUCores,
+            HasWifi,
+            HasLTE,
+            ReleaseDate,
+            Price,
+            VideoCard
+        ) VALUES ('Z690','4','True','False','3/12/2024 10:42:28 AM','943.87','RTX 2060')
+
