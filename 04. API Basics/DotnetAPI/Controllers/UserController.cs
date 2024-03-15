@@ -69,9 +69,7 @@ public class UserController : ControllerBase
     }
 
     [HttpPost("AddUser")]
-    public IActionResult AddUser(UserToAddDTO user)
-    // We don't need to pass a UserId when creating a user, that's why we rely on Data Transfer Objects
-    // In this case the UserToAddDTO class is the same as the User class but without a UserId Property
+    public IActionResult AddUser(UserToAddDTO user)y
     {
         string sql = @"
             INSERT INTO TutorialAppSchema.Users(
