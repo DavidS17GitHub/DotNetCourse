@@ -1,6 +1,6 @@
 namespace DotnetAPI
 {
-    public partial class Users
+    public partial class User
     /* We use partial in case we want to add to this class from another file 
     It is mostly a good practice */
     {
@@ -11,7 +11,7 @@ namespace DotnetAPI
         public string Gender { get; set; }
         public bool Active { get; set; }
 
-        public Users()
+        public User()
         {
             if (FirstName == null)
             {
