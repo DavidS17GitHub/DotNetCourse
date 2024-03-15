@@ -50,8 +50,7 @@ public class UserController : ControllerBase
     }
 
     [HttpPut("EditUser")]
-    public IActionResult EditUser(User user /* You could also use [FromBody] to receive parameters from the request body*/)
-    // IActionResult does not return data but the result of an action, like successful request or failed request, with an error message if we want to
+    public IActionResult EditUser(User user)
     {
         string sql = @"
             UPDATE TutorialAppSchema.Users
@@ -67,11 +66,12 @@ public class UserController : ControllerBase
         }
 
         throw new Exception("Failed to update User");
-        // Built-in method on the ControllerBase classm Ok return a 200 response
     }
 
     [HttpPost("AddUser")]
-    public IActionResult AddUser(User user)
+    public IActionResult AddUser(UserToAddDTO user)
+    // We don't need to pass a UserId when creating a user, that's why we rely on Data Transfer Objects
+    // In this case the UserToAddDTO class is the same as the User class but without a UserId Property
     {
         string sql = @"
             INSERT INTO TutorialAppSchema.Users(
