@@ -21,7 +21,6 @@ public class UserController : ControllerBase
     [HttpGet("GetUsers")]
     public IEnumerable<User> GetUsers()
     {
-        // 4,000 characters is the maximum allowed by Dapper to pass trhough
         string sql = @"
             SELECT [UserId],
                 [FirstName],
@@ -32,7 +31,6 @@ public class UserController : ControllerBase
             FROM TutorialAppSchema.Users";
         IEnumerable<User> users = _dapper.LoadData<User>(sql);
         return users;
-        // DotNet will automatically convert the PascalCase Model properties to camelCase JSON
     }
 
     [HttpGet("GetSingleUser/{userId}")]
@@ -46,9 +44,55 @@ public class UserController : ControllerBase
                 [Gender],
                 [Active] 
             FROM TutorialAppSchema.Users
-            WHERE [UserId] = " + userId.ToString(); // Convert the int type from the parameter to string to be able to concatenate without any issues
+            WHERE [UserId] = " + userId.ToString();
         User user = _dapper.LoadDataSingle<User>(sql);
         return user;
+    }
+
+    [HttpPut("EditUser")]
+    public IActionResult EditUser(User user /* You could also use [FromBody] to receive parameters from the request body*/)
+    // IActionResult does not return data but the result of an action, like successful request or failed request, with an error message if we want to
+    {
+        string sql = @"
+            UPDATE TutorialAppSchema.Users
+                SET [FirstName] = '" + user.FirstName + 
+                "', [LastName] = '" + user.LastName + 
+                "', [Email] = '" + user.Email + 
+                "', [Gender] = '" + user.Gender + 
+                "', [Active] = '" + user.Active + 
+                "' WHERE UserId = " + user.UserId;
+        if (_dapper.ExecuteSql(sql))
+        {
+            return Ok();
+        }
+
+        throw new Exception("Failed to update User");
+        // Built-in method on the ControllerBase classm Ok return a 200 response
+    }
+
+    [HttpPost("AddUser")]
+    public IActionResult AddUser(User user)
+    {
+        string sql = @"
+            INSERT INTO TutorialAppSchema.Users(
+                [FirstName],
+                [LastName],
+                [Email],
+                [Gender],
+                [Active]
+            ) VALUES (
+                '" + user.FirstName + 
+                "','" + user.LastName + 
+                "','" + user.Email + 
+                "','" + user.Gender + 
+                "','" + user.Active + 
+            "')";
+        if (_dapper.ExecuteSql(sql))
+        {
+            return Ok();
+        }
+
+        throw new Exception("Failed to add User");
 
     }
 
