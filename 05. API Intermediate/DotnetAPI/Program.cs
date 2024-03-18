@@ -1,3 +1,5 @@
+using DotnetAPI.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
@@ -24,6 +26,9 @@ builder.Services.AddCors((options) =>
                     .AllowCredentials();
             });
     });
+
+builder.Services.AddScoped<IUserRepository, UserRepository>(); 
+// This adds the scope that connects the interface to the Class it belongs to
 
 var app = builder.Build();
 
