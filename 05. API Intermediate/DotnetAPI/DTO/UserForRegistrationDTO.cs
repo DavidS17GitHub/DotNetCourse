@@ -5,6 +5,9 @@ namespace DotnetAPI.DTOs
         public string Email {get; set;}
         public string Password {get; set;}
         public string PasswordConfirm {get; set;}
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string Gender { get; set; }
         public UserForRegistrationDTO()
         {
             if ( Email == null)
@@ -18,6 +21,18 @@ namespace DotnetAPI.DTOs
             if ( PasswordConfirm == null)
             {
                 PasswordConfirm = "";
+            }
+            if (FirstName == null)
+            {
+                FirstName = "";
+            }
+            if (LastName == null)
+            {
+                LastName = "";
+            }
+            if (Gender == null)
+            {
+                Gender = "";
             }
         }
     }

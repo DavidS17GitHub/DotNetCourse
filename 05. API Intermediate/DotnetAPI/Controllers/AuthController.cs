@@ -62,9 +62,27 @@ namespace DotnetAPI.Controllers
 
                     if (_dapper.ExecuteSqlWithParameters(sqlAddAuth, sqlParameters))
                     {
-                        return Ok();
+                        string sqlAddUser = @$"
+                                    INSERT INTO TutorialAppSchema.Users(
+                                        [FirstName],
+                                        [LastName],
+                                        [Email],
+                                        [Gender],
+                                        [Active]
+                                    ) VALUES (
+                                        '{userForRegstration.FirstName}',
+                                        '{userForRegstration.LastName}',
+                                        '{userForRegstration.Email}',
+                                        '{userForRegstration.Gender}',
+                                        'True'
+                                    )";
+                        if (_dapper.ExecuteSql(sqlAddUser))
+                        {
+                            return Ok();
+                        }
+                        throw new Exception("Failed to Add user.");
                     }
-                    throw new Exception("Failed to register user.");
+                    throw new Exception("Failed to Register user.");
                 }
                 throw new Exception("User with this email already exists!");
             }
@@ -83,7 +101,7 @@ namespace DotnetAPI.Controllers
                 .LoadDataSingle<UserForLoginConfirmationDTO>(sqlForHashAndSalt);
 
             byte[] passwordHash = GetPasswordHash(userForLogin.Password, userForConfirmation.PasswordSalt);
-            
+
             // if (passwordHash == userForConfirmation.PasswordHash) // Won't work
             for (int index = 0; index < passwordHash.Length; index++)
             {
