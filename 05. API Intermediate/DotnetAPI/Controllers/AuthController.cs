@@ -12,22 +12,36 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace DotnetAPI.Controllers
 {
+    /// <summary>
+    /// Controller handling authentication operations such as user registration and login.
+    /// </summary>
     public class AuthController : ControllerBase
     {
         private readonly DataContextDapper _dapper;
         private readonly IConfiguration _config;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AuthController"/> class.
+        /// </summary>
+        /// <param name="config">The application configuration.</param>
         public AuthController(IConfiguration config)
         {
             _dapper = new DataContextDapper(config);
             _config = config;
         }
 
+        /// <summary>
+        /// Registers a new user.
+        /// </summary>
+        /// <param name="userForRegstration">User registration details.</param>
+        /// <returns>HTTP response indicating success or failure.</returns>
         [HttpPost("Register")]
         public IActionResult Register(UserForRegistrationDTO userForRegstration)
         {
+            // Check if passwords match
             if (userForRegstration.Password == userForRegstration.PasswordConfirm)
             {
+                // Check if user already exists
                 string sqlCheckUserExists = @$"SELECT Email FROM TutorialAppSchema.Auth
                                                     WHERE Email = '{userForRegstration.Email}'";
 
@@ -35,6 +49,7 @@ namespace DotnetAPI.Controllers
 
                 if (existingUsers.Count() == 0)
                 {
+                    // Generate password salt and hash
                     byte[] passwordSalt = new byte[128 / 8];
                     using (RandomNumberGenerator rng = RandomNumberGenerator.Create())
                     {
@@ -43,6 +58,7 @@ namespace DotnetAPI.Controllers
 
                     byte[] passwordHash = GetPasswordHash(userForRegstration.Password, passwordSalt);
 
+                    // Add user authentication details to database
                     string sqlAddAuth = @$"INSERT INTO TutorialAppSchema.Auth (
                                             [Email],
                                             [PasswordHash],
@@ -65,6 +81,7 @@ namespace DotnetAPI.Controllers
 
                     if (_dapper.ExecuteSqlWithParameters(sqlAddAuth, sqlParameters))
                     {
+                        // Add user details to database
                         string sqlAddUser = @$"
                                     INSERT INTO TutorialAppSchema.Users(
                                         [FirstName],
@@ -92,9 +109,15 @@ namespace DotnetAPI.Controllers
             throw new Exception("Passwords do not match!");
         }
 
+        /// <summary>
+        /// Logs in a user.
+        /// </summary>
+        /// <param name="userForLogin">User login details.</param>
+        /// <returns>HTTP response containing authentication token on success, or error message on failure.</returns>
         [HttpPost("Login")]
         public IActionResult Login(UserForLoginDTO userForLogin)
         {
+            // Retrieve user's password hash and salt
             string sqlForHashAndSalt = @$"SELECT [PasswordHash],
                                             [PasswordSalt] 
                                         FROM TutorialAppSchema.Auth 
@@ -103,6 +126,8 @@ namespace DotnetAPI.Controllers
             UserForLoginConfirmationDTO userForConfirmation = _dapper
                 .LoadDataSingle<UserForLoginConfirmationDTO>(sqlForHashAndSalt);
 
+            
+            // Generate password hash and compare with stored hash
             byte[] passwordHash = GetPasswordHash(userForLogin.Password, userForConfirmation.PasswordSalt);
 
             // if (passwordHash == userForConfirmation.PasswordHash) // Won't work
@@ -114,6 +139,7 @@ namespace DotnetAPI.Controllers
                 }
             }
 
+            // Retrieve user ID and create JWT token
             string userIdSql = $@"SELECT UserId FROM TutorialAppSchema.Users WHERE Email = '{userForLogin.Email}'";
 
             int userId = _dapper.LoadDataSingle<int>(userIdSql);
@@ -123,6 +149,12 @@ namespace DotnetAPI.Controllers
             });
         }
 
+        /// <summary>
+        /// Generates a password hash.
+        /// </summary>
+        /// <param name="password">The password to hash.</param>
+        /// <param name="passwordSalt">The salt for the password.</param>
+        /// <returns>The password hash.</returns>
         private byte[] GetPasswordHash(string password, byte[] passwordSalt)
         {
             string passwordSaltPlusString = _config.GetSection("AppSettings:PasswordKey").Value +
@@ -139,6 +171,11 @@ namespace DotnetAPI.Controllers
             return passwordHash;
         }
 
+        /// <summary>
+        /// Creates a JWT token.
+        /// </summary>
+        /// <param name="userId">The user ID to include in the token.</param>
+        /// <returns>The JWT token.</returns>
         private string CreateToken(int userId)
         {
             Claim[] claims = new Claim[] {
