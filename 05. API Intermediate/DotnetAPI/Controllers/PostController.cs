@@ -146,5 +146,22 @@ namespace DotnetAPI.Controllers
 
             throw new Exception("Failed to delete post!");
         }
+
+        [HttpGet("PostsBySearch/{searchParam}")]
+        public IEnumerable<Post> PostsBySearch(string searchParam)
+        {
+            // SQL query to select posts created by the current user.
+            string sql = @$"SELECT [PostId],
+                            [UserId],
+                            [PostTitle],
+                            [PostContent],
+                            [PostCreated],
+                            [PostUpdated]
+                        FROM TutorialAppSchema.Posts
+                        WHERE PostTitle LIKE '%{searchParam}%'
+                        OR PostContent LIKE '%{searchParam}%'";
+
+            return _dapper.LoadData<Post>(sql);
+        }
     }
 }
