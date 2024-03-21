@@ -147,10 +147,15 @@ namespace DotnetAPI.Controllers
             throw new Exception("Failed to delete post!");
         }
 
+        /// <summary>
+        /// Retrieves posts based on a search parameter.
+        /// </summary>
+        /// <param name="searchParam">The search parameter to filter posts by.</param>
+        /// <returns>An enumerable collection of posts matching the search parameter.</returns>
         [HttpGet("PostsBySearch/{searchParam}")]
         public IEnumerable<Post> PostsBySearch(string searchParam)
         {
-            // SQL query to select posts created by the current user.
+            // SQL query to select posts based on a search parameter, searching within post titles and content.
             string sql = @$"SELECT [PostId],
                             [UserId],
                             [PostTitle],
