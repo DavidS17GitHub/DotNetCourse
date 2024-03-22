@@ -486,3 +486,6 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+# Removing AppSettings since I am using a Cloud Database
+**/appsettings.json
